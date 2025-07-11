@@ -46,10 +46,10 @@ const VehicleList = ({ vehicles, onUpdate }: VehicleListProps) => {
       });
       
       onUpdate();
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: "Error",
-        description: error.message,
+        description: error instanceof Error ? error.message : "An unexpected error occurred",
         variant: "destructive"
       });
     } finally {
@@ -76,10 +76,10 @@ const VehicleList = ({ vehicles, onUpdate }: VehicleListProps) => {
       });
       
       onUpdate();
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: "Error",
-        description: error.message,
+        description: error instanceof Error ? error.message : "An unexpected error occurred",
         variant: "destructive"
       });
     } finally {
