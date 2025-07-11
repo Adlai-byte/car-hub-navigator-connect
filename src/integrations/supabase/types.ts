@@ -14,7 +14,128 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      agencies: {
+        Row: {
+          address: string | null
+          city: string | null
+          company_name: string
+          contact_email: string
+          contact_phone: string | null
+          created_at: string
+          description: string | null
+          id: string
+          postal_code: string | null
+          state: string | null
+          updated_at: string
+          user_id: string
+          website: string | null
+        }
+        Insert: {
+          address?: string | null
+          city?: string | null
+          company_name: string
+          contact_email: string
+          contact_phone?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          postal_code?: string | null
+          state?: string | null
+          updated_at?: string
+          user_id: string
+          website?: string | null
+        }
+        Update: {
+          address?: string | null
+          city?: string | null
+          company_name?: string
+          contact_email?: string
+          contact_phone?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          postal_code?: string | null
+          state?: string | null
+          updated_at?: string
+          user_id?: string
+          website?: string | null
+        }
+        Relationships: []
+      }
+      vehicles: {
+        Row: {
+          agency_id: string
+          created_at: string
+          daily_rate: number
+          features: string[] | null
+          fuel_type: string
+          id: string
+          image_url: string | null
+          is_available: boolean
+          license_plate: string | null
+          make: string
+          model: string
+          monthly_rate: number | null
+          seats: number
+          transmission: string
+          updated_at: string
+          vehicle_type: string
+          vin: string | null
+          weekly_rate: number | null
+          year: number
+        }
+        Insert: {
+          agency_id: string
+          created_at?: string
+          daily_rate: number
+          features?: string[] | null
+          fuel_type: string
+          id?: string
+          image_url?: string | null
+          is_available?: boolean
+          license_plate?: string | null
+          make: string
+          model: string
+          monthly_rate?: number | null
+          seats: number
+          transmission: string
+          updated_at?: string
+          vehicle_type: string
+          vin?: string | null
+          weekly_rate?: number | null
+          year: number
+        }
+        Update: {
+          agency_id?: string
+          created_at?: string
+          daily_rate?: number
+          features?: string[] | null
+          fuel_type?: string
+          id?: string
+          image_url?: string | null
+          is_available?: boolean
+          license_plate?: string | null
+          make?: string
+          model?: string
+          monthly_rate?: number | null
+          seats?: number
+          transmission?: string
+          updated_at?: string
+          vehicle_type?: string
+          vin?: string | null
+          weekly_rate?: number | null
+          year?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vehicles_agency_id_fkey"
+            columns: ["agency_id"]
+            isOneToOne: false
+            referencedRelation: "agencies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never

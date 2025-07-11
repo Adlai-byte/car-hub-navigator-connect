@@ -30,7 +30,7 @@ const Header = () => {
             <User className="h-4 w-4" />
             Sign In
           </Button>
-          <Button variant="hero" size="sm">
+          <Button variant="hero" size="sm" onClick={() => window.location.href = '/agency-auth'}>
             List Your Fleet
           </Button>
           <Button variant="ghost" size="icon" className="md:hidden">
