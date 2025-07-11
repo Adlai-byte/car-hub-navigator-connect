@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Car, Eye, EyeOff } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -15,9 +15,10 @@ const AgencyAuth = () => {
   const [companyName, setCompanyName] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  
+
   const { signIn, signUp } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -44,7 +45,7 @@ const AgencyAuth = () => {
         });
       } else if (!isLogin) {
         if (session) {
-          window.location.href = '/dashboard';
+          navigate('/dashboard');
         } else {
           toast({
             title: "Success",
@@ -52,7 +53,7 @@ const AgencyAuth = () => {
           });
         }
       } else {
-        window.location.href = '/dashboard';
+        navigate('/dashboard');
       }
     } catch (error: unknown) {
       toast({

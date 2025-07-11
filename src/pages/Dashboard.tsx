@@ -4,8 +4,9 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
-import VehicleList from '@/components/VehicleList';
+import VehicleList, { Vehicle } from '@/components/VehicleList';
 import AddVehicleDialog from '@/components/AddVehicleDialog';
+import { Navigate } from 'react-router-dom';
 
 interface Agency {
   id: string;
@@ -16,7 +17,7 @@ interface Agency {
 const Dashboard = () => {
   const { user, signOut } = useAuth();
   const [agency, setAgency] = useState<Agency | null>(null);
-  const [vehicles, setVehicles] = useState([]);
+  const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [showAddVehicle, setShowAddVehicle] = useState(false);
   const [loading, setLoading] = useState(true);
 
@@ -68,8 +69,7 @@ const Dashboard = () => {
   };
 
   if (!user) {
-    window.location.href = '/agency-auth';
-    return null;
+    return <Navigate to="/agency-auth" replace />;
   }
 
   if (loading) {
@@ -132,7 +132,7 @@ const Dashboard = () => {
             <CardHeader className="pb-2">
               <CardDescription>Available Now</CardDescription>
               <CardTitle className="text-3xl">
-                {vehicles.filter((v: any) => v.is_available).length}
+                {vehicles.filter((v) => v.is_available).length}
               </CardTitle>
             </CardHeader>
           </Card>
@@ -141,8 +141,13 @@ const Dashboard = () => {
             <CardHeader className="pb-2">
               <CardDescription>Average Daily Rate</CardDescription>
               <CardTitle className="text-3xl">
-                ${vehicles.length > 0 
-                  ? Math.round(vehicles.reduce((sum: number, v: any) => sum + parseFloat(v.daily_rate), 0) / vehicles.length)
+                ${vehicles.length > 0
+                  ? Math.round(
+                      vehicles.reduce(
+                        (sum: number, v) => sum + parseFloat(v.daily_rate),
+                        0
+                      ) / vehicles.length
+                    )
                   : 0}
               </CardTitle>
             </CardHeader>

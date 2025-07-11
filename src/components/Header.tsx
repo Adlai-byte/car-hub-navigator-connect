@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Car, Menu, User } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const Header = () => {
   return (
@@ -30,8 +31,8 @@ const Header = () => {
             <User className="h-4 w-4" />
             Sign In
           </Button>
-          <Button variant="hero" size="sm" onClick={() => window.location.href = '/agency-auth'}>
-            List Your Fleet
+          <Button variant="hero" size="sm" asChild>
+            <Link to="/agency-auth">List Your Fleet</Link>
           </Button>
           <Button variant="ghost" size="icon" className="md:hidden">
             <Menu className="h-4 w-4" />

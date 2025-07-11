@@ -14,12 +14,12 @@ interface AuthContextType {
   signUp: (
     email: string,
     password: string,
-    userData?: any
-  ) => Promise<{ data: { session: Session | null }; error: any }>;
+    userData?: Record<string, unknown>
+  ) => Promise<{ data: { session: Session | null }; error: unknown }>;
   signIn: (
     email: string,
     password: string
-  ) => Promise<{ data: { session: Session | null }; error: any }>;
+  ) => Promise<{ data: { session: Session | null }; error: unknown }>;
   signOut: () => Promise<void>;
 }
 
@@ -53,7 +53,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signUp = async (
     email: string,
     password: string,
-    userData?: any
+    userData?: Record<string, unknown>
   ) => {
     const redirectUrl = `${window.location.origin}/`;
 
