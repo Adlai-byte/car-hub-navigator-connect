@@ -25,11 +25,12 @@ const AgencyAuth = () => {
 
     try {
       let error;
+      let session = null;
       
       if (isLogin) {
-        ({ error } = await signIn(email, password));
+        ({ error, data: { session } } = await signIn(email, password));
       } else {
-        ({ error } = await signUp(email, password, {
+        ({ error, data: { session } } = await signUp(email, password, {
           user_type: 'agency',
           company_name: companyName
         }));
@@ -42,10 +43,14 @@ const AgencyAuth = () => {
           variant: "destructive"
         });
       } else if (!isLogin) {
-        toast({
-          title: "Success",
-          description: "Account created! Please check your email to verify your account.",
-        });
+        if (session) {
+          window.location.href = '/dashboard';
+        } else {
+          toast({
+            title: "Success",
+            description: "Account created! Please check your email to verify your account.",
+          });
+        }
       } else {
         window.location.href = '/dashboard';
       }
