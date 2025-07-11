@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Car, Plus, Settings, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -20,13 +20,7 @@ const Dashboard = () => {
   const [showAddVehicle, setShowAddVehicle] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    if (user) {
-      loadAgencyData();
-    }
-  }, [user]);
-
-  const loadAgencyData = async () => {
+  const loadAgencyData = useCallback(async () => {
     try {
       // Get agency profile
       const { data: agencyData, error: agencyError } = await supabase
@@ -60,7 +54,13 @@ const Dashboard = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user]);
+
+  useEffect(() => {
+    if (user) {
+      loadAgencyData();
+    }
+  }, [user, loadAgencyData]);
 
   const handleVehicleAdded = () => {
     loadAgencyData();
