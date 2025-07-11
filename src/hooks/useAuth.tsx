@@ -6,8 +6,15 @@ interface AuthContextType {
   user: User | null;
   session: Session | null;
   loading: boolean;
-  signUp: (email: string, password: string, userData?: any) => Promise<{ error: any }>;
-  signIn: (email: string, password: string) => Promise<{ error: any }>;
+  signUp: (
+    email: string,
+    password: string,
+    userData?: any
+  ) => Promise<{ data: { session: Session | null }; error: any }>;
+  signIn: (
+    email: string,
+    password: string
+  ) => Promise<{ data: { session: Session | null }; error: any }>;
   signOut: () => Promise<void>;
 }
 
@@ -38,26 +45,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => subscription.unsubscribe();
   }, []);
 
-  const signUp = async (email: string, password: string, userData?: any) => {
+  const signUp = async (
+    email: string,
+    password: string,
+    userData?: any
+  ) => {
     const redirectUrl = `${window.location.origin}/`;
-    
-    const { error } = await supabase.auth.signUp({
+
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
         emailRedirectTo: redirectUrl,
-        data: userData
-      }
+        data: userData,
+      },
     });
-    return { error };
+    return { data: { session: data.session }, error };
   };
 
   const signIn = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({
+    const { data, error } = await supabase.auth.signInWithPassword({
       email,
-      password
+      password,
     });
-    return { error };
+    return { data: { session: data.session }, error };
   };
 
   const signOut = async () => {
