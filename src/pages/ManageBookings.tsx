@@ -3,14 +3,16 @@ import { Navigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Car } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 interface Booking {
   id: string;
   vehicle_id: string;
   customer_name: string;
   customer_email: string;
+  phone_number: string | null;
+  notes: string | null;
   start_date: string;
   end_date: string;
   status: string;
@@ -25,6 +27,8 @@ const ManageBookings = () => {
   const { user } = useAuth();
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
+  const [vehicleIds, setVehicleIds] = useState<string[]>([]);
+  const { toast } = useToast();
 
   const loadBookings = useCallback(async () => {
     if (!user) return;
@@ -42,6 +46,7 @@ const ManageBookings = () => {
       .select('id')
       .eq('agency_id', agency.id);
     const ids = vehicles?.map((v) => v.id) || [];
+    setVehicleIds(ids);
     if (ids.length === 0) {
       setBookings([]);
       setLoading(false);
@@ -49,7 +54,7 @@ const ManageBookings = () => {
     }
     const { data } = await supabase
       .from('bookings')
-      .select('id, vehicle_id, customer_name, customer_email, start_date, end_date, status, vehicles(make, model, year)')
+      .select('id, vehicle_id, customer_name, customer_email, phone_number, notes, start_date, end_date, status, vehicles(make, model, year)')
       .in('vehicle_id', ids)
       .order('created_at', { ascending: false });
     setBookings((data as Booking[]) || []);
@@ -59,6 +64,23 @@ const ManageBookings = () => {
   useEffect(() => {
     loadBookings();
   }, [loadBookings]);
+
+  useEffect(() => {
+    if (!user || vehicleIds.length === 0) return;
+    const channel = supabase
+      .channel('agency-bookings')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'bookings' }, (payload) => {
+        const booking = payload.new as Booking;
+        if (vehicleIds.includes(booking.vehicle_id)) {
+          toast({ title: 'New Booking', description: `${booking.customer_name} booked a vehicle.` });
+          loadBookings();
+        }
+      })
+      .subscribe();
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user, vehicleIds, loadBookings, toast]);
 
   if (!user) {
     return <Navigate to="/agency-auth" replace />;
@@ -92,6 +114,12 @@ const ManageBookings = () => {
                         <p className="text-sm text-muted-foreground">
                           {b.customer_name} ({b.customer_email})
                         </p>
+                        {b.phone_number && (
+                          <p className="text-sm text-muted-foreground">{b.phone_number}</p>
+                        )}
+                        {b.notes && (
+                          <p className="text-sm text-muted-foreground">{b.notes}</p>
+                        )}
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
