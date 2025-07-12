@@ -5,6 +5,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Car } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { Button } from '@/components/ui/button';
 
 interface Booking {
   id: string;
@@ -30,6 +31,23 @@ const ManageBookings = () => {
   const [vehicleIds, setVehicleIds] = useState<string[]>([]);
   const [agencyId, setAgencyId] = useState<string | null>(null);
   const { toast } = useToast();
+
+  const updateStatus = async (id: string, status: string) => {
+    const { error } = await supabase
+      .from('bookings')
+      .update({ status })
+      .eq('id', id);
+    if (error) {
+      toast({
+        title: 'Error',
+        description: (error as Error).message,
+        variant: 'destructive'
+      });
+    } else {
+      toast({ title: 'Booking Updated', description: `Booking ${status}.` });
+      loadBookings();
+    }
+  };
 
   const loadBookings = useCallback(async () => {
     if (!user) return;
@@ -130,7 +148,23 @@ const ManageBookings = () => {
                     </div>
                     <div className="flex items-center gap-2">
                       <span className="text-sm capitalize mr-2">{b.status}</span>
-                      {/* Potential actions could go here */}
+                      {b.status === 'pending' && (
+                        <>
+                          <Button
+                            size="sm"
+                            onClick={() => updateStatus(b.id, 'accepted')}
+                          >
+                            Accept
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="destructive"
+                            onClick={() => updateStatus(b.id, 'declined')}
+                          >
+                            Decline
+                          </Button>
+                        </>
+                      )}
                     </div>
                   </div>
                 ))}
