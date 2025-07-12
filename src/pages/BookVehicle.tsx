@@ -30,6 +30,7 @@ const BookVehicle = () => {
   });
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
+  const today = new Date().toISOString().split('T')[0];
 
   useEffect(() => {
     if (!vehicleId) return;
@@ -51,6 +52,22 @@ const BookVehicle = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!vehicleId) return;
+    if (form.start < today) {
+      toast({
+        title: 'Invalid dates',
+        description: 'Start date cannot be before today.',
+        variant: 'destructive'
+      });
+      return;
+    }
+    if (form.end < form.start) {
+      toast({
+        title: 'Invalid dates',
+        description: 'End date cannot be before start date.',
+        variant: 'destructive'
+      });
+      return;
+    }
     setLoading(true);
     const { error } = await supabase.from('bookings').insert({
       vehicle_id: vehicleId,
@@ -115,11 +132,25 @@ const BookVehicle = () => {
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="start">Start Date</Label>
-                      <Input id="start" type="date" value={form.start} onChange={(e) => update('start', e.target.value)} required />
+                      <Input
+                        id="start"
+                        type="date"
+                        min={today}
+                        value={form.start}
+                        onChange={(e) => update('start', e.target.value)}
+                        required
+                      />
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="end">End Date</Label>
-                      <Input id="end" type="date" value={form.end} onChange={(e) => update('end', e.target.value)} required />
+                      <Input
+                        id="end"
+                        type="date"
+                        min={form.start || today}
+                        value={form.end}
+                        onChange={(e) => update('end', e.target.value)}
+                        required
+                      />
                     </div>
                   </div>
                   <Button type="submit" disabled={loading} className="w-full">
