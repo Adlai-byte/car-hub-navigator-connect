@@ -69,20 +69,45 @@ const BookVehicle = () => {
       return;
     }
     setLoading(true);
-    const { error } = await supabase.from('bookings').insert({
-      vehicle_id: vehicleId,
-      customer_name: form.name,
-      customer_email: form.email,
-      phone_number: form.phone || null,
-      notes: form.notes || null,
-      start_date: form.start,
-      end_date: form.end
-    });
+    const { data: booking, error } = await supabase
+      .from('bookings')
+      .insert({
+        vehicle_id: vehicleId,
+        customer_name: form.name,
+        customer_email: form.email,
+        phone_number: form.phone || null,
+        notes: form.notes || null,
+        start_date: form.start,
+        end_date: form.end,
+      })
+      .select()
+      .single();
     if (error) {
-      toast({ title: 'Error', description: (error as Error).message, variant: 'destructive' });
+      toast({
+        title: 'Error',
+        description: (error as Error).message,
+        variant: 'destructive',
+      });
     } else {
       toast({ title: 'Booked', description: 'Your booking was created.' });
       setForm({ name: '', email: '', phone: '', notes: '', start: '', end: '' });
+
+      const { data: vehicleInfo } = await supabase
+        .from('vehicles')
+        .select('agency_id')
+        .eq('id', vehicleId)
+        .single();
+
+      if (vehicleInfo) {
+        const channel = supabase.channel(`agency-${vehicleInfo.agency_id}`);
+        await channel.subscribe();
+        await channel.send({
+          type: 'broadcast',
+          event: 'new-booking',
+          payload: { bookingId: booking.id },
+        });
+        await supabase.removeChannel(channel);
+      }
     }
     setLoading(false);
   };

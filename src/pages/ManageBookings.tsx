@@ -28,6 +28,7 @@ const ManageBookings = () => {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
   const [vehicleIds, setVehicleIds] = useState<string[]>([]);
+  const [agencyId, setAgencyId] = useState<string | null>(null);
   const { toast } = useToast();
 
   const loadBookings = useCallback(async () => {
@@ -41,6 +42,7 @@ const ManageBookings = () => {
       setLoading(false);
       return;
     }
+    setAgencyId(agency.id);
     const { data: vehicles } = await supabase
       .from('vehicles')
       .select('id')
@@ -66,9 +68,9 @@ const ManageBookings = () => {
   }, [loadBookings]);
 
   useEffect(() => {
-    if (!user || vehicleIds.length === 0) return;
+    if (!user || vehicleIds.length === 0 || !agencyId) return;
     const channel = supabase
-      .channel('agency-bookings')
+      .channel(`agency-${agencyId}`)
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'bookings' }, (payload) => {
         const booking = payload.new as Booking;
         if (vehicleIds.includes(booking.vehicle_id)) {
@@ -76,11 +78,15 @@ const ManageBookings = () => {
           loadBookings();
         }
       })
+      .on('broadcast', { event: 'new-booking' }, () => {
+        toast({ title: 'New Booking', description: 'A vehicle was booked.' });
+        loadBookings();
+      })
       .subscribe();
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [user, vehicleIds, loadBookings, toast]);
+  }, [user, vehicleIds, agencyId, loadBookings, toast]);
 
   if (!user) {
     return <Navigate to="/agency-auth" replace />;
