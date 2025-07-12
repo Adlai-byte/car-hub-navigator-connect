@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, Navigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { Car } from 'lucide-react';
+import { useAuth } from '@/hooks/useAuth';
 
 interface Vehicle {
   id: string;
@@ -19,6 +20,7 @@ interface Vehicle {
 
 const BookVehicle = () => {
   const { vehicleId } = useParams();
+  const { user } = useAuth();
   const [vehicle, setVehicle] = useState<Vehicle | null>(null);
   const [form, setForm] = useState({
     name: '',
@@ -32,6 +34,10 @@ const BookVehicle = () => {
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
   const today = new Date().toISOString().split('T')[0];
+
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
 
   useEffect(() => {
     fetch('https://api.ipify.org?format=json')
