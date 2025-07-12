@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Car } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
+import OwnerHeader from '@/components/OwnerHeader';
 
 interface Booking {
   id: string;
@@ -30,6 +31,7 @@ const ManageBookings = () => {
   const [loading, setLoading] = useState(true);
   const [vehicleIds, setVehicleIds] = useState<string[]>([]);
   const [agencyId, setAgencyId] = useState<string | null>(null);
+  const [agencyName, setAgencyName] = useState<string | null>(null);
   const { toast } = useToast();
 
   const updateStatus = async (id: string, status: string) => {
@@ -53,7 +55,7 @@ const ManageBookings = () => {
     if (!user) return;
     const { data: agency } = await supabase
       .from('agencies')
-      .select('id')
+      .select('id, company_name')
       .eq('user_id', user.id)
       .single();
     if (!agency) {
@@ -61,6 +63,7 @@ const ManageBookings = () => {
       return;
     }
     setAgencyId(agency.id);
+    setAgencyName(agency.company_name);
     const { data: vehicles } = await supabase
       .from('vehicles')
       .select('id')
@@ -111,8 +114,9 @@ const ManageBookings = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background p-4">
-      <div className="container">
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
+      <OwnerHeader page="bookings" agencyName={agencyName} />
+      <div className="container py-8">
         <Card>
           <CardHeader>
             <CardTitle>Bookings</CardTitle>
