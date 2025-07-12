@@ -90,7 +90,7 @@ const FeaturedVehicles = () => {
                   </div>
                   <div className="text-right">
                     <div className="text-2xl font-bold text-primary">
-                      ${vehicle.price}
+                      ₱{vehicle.price}
                     </div>
                     <div className="text-sm text-muted-foreground">per day</div>
                   </div>
