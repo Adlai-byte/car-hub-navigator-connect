@@ -39,10 +39,13 @@ const ManageBookings = () => {
       if (status === 'declined') {
         const { error } = await supabase
           .from('bookings')
-          .delete()
+          .update({ status })
           .eq('id', booking.id);
         if (error) throw error;
-        toast({ title: 'Booking Declined', description: 'Request removed.' });
+        toast({
+          title: 'Booking Declined',
+          description: 'This IP can request the car again in 24 hours.',
+        });
       } else {
         const { error } = await supabase
           .from('bookings')

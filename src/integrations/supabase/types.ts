@@ -144,6 +144,7 @@ export type Database = {
           customer_email: string
           phone_number: string | null
           notes: string | null
+          ip_address: string | null
           start_date: string
           end_date: string
           status: string
@@ -157,6 +158,7 @@ export type Database = {
           customer_email: string
           phone_number?: string | null
           notes?: string | null
+          ip_address?: string | null
           start_date: string
           end_date: string
           status?: string
@@ -170,6 +172,7 @@ export type Database = {
           customer_email?: string
           phone_number?: string | null
           notes?: string | null
+          ip_address?: string | null
           start_date?: string
           end_date?: string
           status?: string
