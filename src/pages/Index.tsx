@@ -3,6 +3,7 @@ import HeroSection from "@/components/HeroSection";
 import FeaturedVehicles from "@/components/FeaturedVehicles";
 import HowItWorks from "@/components/HowItWorks";
 import AgencySection from "@/components/AgencySection";
+import CallToAction from "@/components/CallToAction";
 import Footer from "@/components/Footer";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -11,14 +12,11 @@ const Index = () => {
   return (
     <div className="min-h-screen">
       <Header />
-      {user && (
-        <>
-          <HeroSection />
-          <FeaturedVehicles />
-        </>
-      )}
+      <HeroSection />
+      <FeaturedVehicles />
       <HowItWorks />
       <AgencySection />
+      {!user && <CallToAction />}
       <Footer />
     </div>
   );
