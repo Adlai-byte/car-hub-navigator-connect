@@ -28,9 +28,17 @@ const BookVehicle = () => {
     start: '',
     end: ''
   });
+  const [ip, setIp] = useState('');
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
   const today = new Date().toISOString().split('T')[0];
+
+  useEffect(() => {
+    fetch('https://api.ipify.org?format=json')
+      .then((res) => res.json())
+      .then((data) => setIp(data.ip))
+      .catch(() => setIp(''));
+  }, []);
 
   useEffect(() => {
     if (!vehicleId) return;
@@ -69,6 +77,30 @@ const BookVehicle = () => {
       return;
     }
     setLoading(true);
+
+    // Check if this IP has booked this vehicle in the last 24 hours
+    const { data: recent } = await supabase
+      .from('bookings')
+      .select('id, created_at')
+      .eq('vehicle_id', vehicleId)
+      .eq('ip_address', ip)
+      .order('created_at', { ascending: false })
+      .limit(1);
+
+    if (recent && recent.length > 0) {
+      const last = new Date(recent[0].created_at);
+      if (Date.now() - last.getTime() < 24 * 60 * 60 * 1000) {
+        toast({
+          title: 'Limit reached',
+          description:
+            'You can only book this vehicle once every 24 hours from the same IP address.',
+          variant: 'destructive',
+        });
+        setLoading(false);
+        return;
+      }
+    }
+
     const { error } = await supabase
       .from('bookings')
       .insert({
@@ -79,6 +111,7 @@ const BookVehicle = () => {
         notes: form.notes || null,
         start_date: form.start,
         end_date: form.end,
+        ip_address: ip || null,
       });
     if (error) {
       toast({
@@ -87,7 +120,7 @@ const BookVehicle = () => {
         variant: 'destructive',
       });
     } else {
-      toast({ title: 'Booked', description: 'Your booking was created.' });
+      toast({ title: 'Booked', description: 'Booking request submitted successfully.' });
       setForm({ name: '', email: '', phone: '', notes: '', start: '', end: '' });
 
       const { data: vehicleInfo } = await supabase
