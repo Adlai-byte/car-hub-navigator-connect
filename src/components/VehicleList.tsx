@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import EditVehicleDialog from './EditVehicleDialog';
 
 export interface Vehicle {
   id: string;
@@ -27,6 +28,7 @@ interface VehicleListProps {
 
 const VehicleList = ({ vehicles, onUpdate }: VehicleListProps) => {
   const [loading, setLoading] = useState<string | null>(null);
+  const [editingVehicle, setEditingVehicle] = useState<Vehicle | null>(null);
   const { toast } = useToast();
 
   const toggleAvailability = async (vehicleId: string, currentStatus: boolean) => {
@@ -100,18 +102,21 @@ const VehicleList = ({ vehicles, onUpdate }: VehicleListProps) => {
   }
 
   return (
-    <div className="grid gap-4">
-      {vehicles.map((vehicle) => (
-        <Card key={vehicle.id} className="overflow-hidden">
+    <>
+      <div className="grid gap-4">
+        {vehicles.map((vehicle) => (
+          <Card key={vehicle.id} className="overflow-hidden">
           <CardContent className="p-6">
             <div className="flex items-start justify-between gap-4">
               <div className="flex gap-4 flex-1">
                 <div className="w-20 h-20 bg-muted rounded-lg flex items-center justify-center flex-shrink-0">
                   {vehicle.image_url ? (
-                    <img 
-                      src={vehicle.image_url} 
+                    <img
+                      src={vehicle.image_url}
                       alt={`${vehicle.make} ${vehicle.model}`}
                       className="w-full h-full object-cover rounded-lg"
+                      referrerPolicy="no-referrer"
+                      crossOrigin="anonymous"
                     />
                   ) : (
                     <Car className="h-8 w-8 text-muted-foreground" />
@@ -166,7 +171,7 @@ const VehicleList = ({ vehicles, onUpdate }: VehicleListProps) => {
                   )}
                 </Button>
                 
-                <Button variant="ghost" size="icon">
+                <Button variant="ghost" size="icon" onClick={() => setEditingVehicle(vehicle)}>
                   <Edit className="h-4 w-4" />
                 </Button>
                 
@@ -181,9 +186,16 @@ const VehicleList = ({ vehicles, onUpdate }: VehicleListProps) => {
               </div>
             </div>
           </CardContent>
-        </Card>
-      ))}
-    </div>
+          </Card>
+        ))}
+      </div>
+      <EditVehicleDialog
+        open={!!editingVehicle}
+        onOpenChange={(open) => !open && setEditingVehicle(null)}
+        vehicle={editingVehicle}
+        onVehicleUpdated={onUpdate}
+      />
+    </>
   );
 };
 

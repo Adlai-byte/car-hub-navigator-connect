@@ -1,51 +1,46 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Star, MapPin, Users, Fuel, MessageCircle } from "lucide-react";
+import { Star, MapPin, MessageCircle, Car } from "lucide-react";
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
-const vehicles = [
-  {
-    id: 1,
-    name: "Toyota Camry 2023",
-    type: "Midsize Sedan",
-    agency: "Metro Car Rentals",
-    location: "Downtown Chicago",
-    price: 45,
-    rating: 4.8,
-    reviews: 124,
-    image: "https://images.unsplash.com/photo-1621007947382-bb3c3994e3fb?w=400&h=250&fit=crop",
-    features: ["4 Passengers", "Automatic", "32 MPG"],
-    available: true
-  },
-  {
-    id: 2,
-    name: "Honda CR-V 2023",
-    type: "Compact SUV",
-    agency: "Urban Fleet",
-    location: "Los Angeles",
-    price: 62,
-    rating: 4.9,
-    reviews: 89,
-    image: "https://images.unsplash.com/photo-1606664515524-ed2f786a0bd6?w=400&h=250&fit=crop",
-    features: ["5 Passengers", "AWD", "28 MPG"],
-    available: true
-  },
-  {
-    id: 3,
-    name: "BMW 3 Series",
-    type: "Luxury Sedan",
-    agency: "Premium Auto",
-    location: "Miami Beach",
-    price: 89,
-    rating: 4.7,
-    reviews: 67,
-    image: "https://images.unsplash.com/photo-1555215695-3004980ad54e?w=400&h=250&fit=crop",
-    features: ["4 Passengers", "Premium", "26 MPG"],
-    available: false
-  }
-];
+interface Vehicle {
+  id: string;
+  make: string;
+  model: string;
+  year: number;
+  vehicle_type: string;
+  daily_rate: number;
+  image_url: string | null;
+  is_available: boolean;
+  seats: number;
+  transmission: string;
+  fuel_type: string;
+  agencies?: {
+    company_name: string | null;
+    city: string | null;
+  } | null;
+}
 
 const FeaturedVehicles = () => {
+  const [vehicles, setVehicles] = useState<Vehicle[]>([]);
+
+  useEffect(() => {
+    const fetchVehicles = async () => {
+      const { data, error } = await supabase
+        .from('vehicles')
+        .select('id, make, model, year, vehicle_type, daily_rate, image_url, is_available, seats, transmission, fuel_type, agencies(company_name, city)')
+        .eq('is_available', true)
+        .limit(6);
+
+      if (!error && data) {
+        setVehicles(data as Vehicle[]);
+      }
+    };
+    fetchVehicles();
+  }, []);
+
   return (
     <section className="py-16 bg-background">
       <div className="container">
@@ -62,65 +57,62 @@ const FeaturedVehicles = () => {
           {vehicles.map((vehicle) => (
             <Card key={vehicle.id} variant="elevated" className="overflow-hidden group hover:scale-105 transition-transform duration-300">
               <div className="relative">
-                <img 
-                  src={vehicle.image} 
-                  alt={vehicle.name}
-                  className="w-full h-48 object-cover"
-                />
-                {!vehicle.available && (
+                {vehicle.image_url ? (
+                  <img
+                    src={vehicle.image_url}
+                    alt={`${vehicle.make} ${vehicle.model}`}
+                    className="w-full h-48 object-cover"
+                    referrerPolicy="no-referrer"
+                    crossOrigin="anonymous"
+                  />
+                ) : (
+                  <div className="w-full h-48 flex items-center justify-center bg-muted">
+                    <Car className="h-8 w-8 text-muted-foreground" />
+                  </div>
+                )}
+                {!vehicle.is_available && (
                   <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
                     <Badge variant="secondary">Currently Unavailable</Badge>
                   </div>
                 )}
                 <div className="absolute top-4 right-4">
-                  <Badge variant={vehicle.available ? "default" : "secondary"}>
-                    {vehicle.type}
+                  <Badge variant={vehicle.is_available ? "default" : "secondary"}>
+                    {vehicle.vehicle_type}
                   </Badge>
                 </div>
               </div>
-              
+
               <CardHeader className="pb-3">
                 <div className="flex justify-between items-start">
                   <div>
-                    <CardTitle className="text-lg">{vehicle.name}</CardTitle>
+                    <CardTitle className="text-lg">{vehicle.year} {vehicle.make} {vehicle.model}</CardTitle>
                     <CardDescription className="flex items-center gap-1 mt-1">
                       <MapPin className="h-3 w-3" />
-                      {vehicle.agency} • {vehicle.location}
+                      {vehicle.agencies?.company_name}
+                      {vehicle.agencies?.city ? ` • ${vehicle.agencies.city}` : ''}
                     </CardDescription>
                   </div>
                   <div className="text-right">
-                    <div className="text-2xl font-bold text-primary">
-                      ₱{vehicle.price}
-                    </div>
+                    <div className="text-2xl font-bold text-primary">₱{vehicle.daily_rate}</div>
                     <div className="text-sm text-muted-foreground">per day</div>
                   </div>
                 </div>
               </CardHeader>
-              
+
               <CardContent className="pt-0">
-                <div className="flex items-center gap-2 mb-3">
-                  <div className="flex items-center gap-1">
-                    <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                    <span className="text-sm font-medium">{vehicle.rating}</span>
-                    <span className="text-sm text-muted-foreground">({vehicle.reviews})</span>
-                  </div>
-                </div>
-                
                 <div className="flex flex-wrap gap-2 mb-4">
-                  {vehicle.features.map((feature, index) => (
-                    <Badge key={index} variant="outline" className="text-xs">
-                      {feature}
-                    </Badge>
-                  ))}
+                  <Badge variant="outline" className="text-xs">{vehicle.seats} seats</Badge>
+                  <Badge variant="outline" className="text-xs">{vehicle.transmission}</Badge>
+                  <Badge variant="outline" className="text-xs">{vehicle.fuel_type}</Badge>
                 </div>
-                
+
                 <div className="flex gap-2">
-                  <Button 
-                    variant={vehicle.available ? "default" : "outline"} 
+                  <Button
+                    variant={vehicle.is_available ? "default" : "outline"}
                     className="flex-1"
-                    disabled={!vehicle.available}
+                    disabled={!vehicle.is_available}
                   >
-                    {vehicle.available ? "View Details" : "Notify When Available"}
+                    {vehicle.is_available ? "View Details" : "Notify When Available"}
                   </Button>
                   <Button variant="outline" size="icon">
                     <MessageCircle className="h-4 w-4" />
