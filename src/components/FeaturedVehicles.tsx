@@ -1,5 +1,6 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { Star, MapPin, MessageCircle, Car } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -108,11 +109,12 @@ const FeaturedVehicles = () => {
 
                 <div className="flex gap-2">
                   <Button
+                    asChild
                     variant={vehicle.is_available ? "default" : "outline"}
                     className="flex-1"
                     disabled={!vehicle.is_available}
                   >
-                    {vehicle.is_available ? "View Details" : "Notify When Available"}
+                    <Link to={`/book/${vehicle.id}`}>{vehicle.is_available ? "Book Now" : "Notify When Available"}</Link>
                   </Button>
                   <Button variant="outline" size="icon">
                     <MessageCircle className="h-4 w-4" />

@@ -19,6 +19,10 @@ export interface Vehicle {
   seats: number;
   transmission: string;
   fuel_type: string;
+  weekly_rate?: string | null;
+  monthly_rate?: string | null;
+  license_plate?: string | null;
+  vin?: string | null;
 }
 
 interface VehicleListProps {
