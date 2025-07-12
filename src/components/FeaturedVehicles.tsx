@@ -108,14 +108,15 @@ const FeaturedVehicles = () => {
                 </div>
 
                 <div className="flex gap-2">
-                  <Button
-                    asChild
-                    variant={vehicle.is_available ? "default" : "outline"}
-                    className="flex-1"
-                    disabled={!vehicle.is_available}
-                  >
-                    <Link to={`/book/${vehicle.id}`}>{vehicle.is_available ? "Book Now" : "Notify When Available"}</Link>
-                  </Button>
+                  {vehicle.is_available ? (
+                    <Button asChild variant="default" className="flex-1">
+                      <Link to={`/book/${vehicle.id}`}>Book Now</Link>
+                    </Button>
+                  ) : (
+                    <Button variant="outline" className="flex-1" disabled>
+                      Notify When Available
+                    </Button>
+                  )}
                   <Button variant="outline" size="icon">
                     <MessageCircle className="h-4 w-4" />
                   </Button>

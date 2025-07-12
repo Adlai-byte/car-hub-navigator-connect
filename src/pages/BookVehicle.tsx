@@ -69,7 +69,7 @@ const BookVehicle = () => {
       return;
     }
     setLoading(true);
-    const { data: booking, error } = await supabase
+    const { error } = await supabase
       .from('bookings')
       .insert({
         vehicle_id: vehicleId,
@@ -79,9 +79,7 @@ const BookVehicle = () => {
         notes: form.notes || null,
         start_date: form.start,
         end_date: form.end,
-      })
-      .select()
-      .single();
+      });
     if (error) {
       toast({
         title: 'Error',
@@ -103,8 +101,7 @@ const BookVehicle = () => {
         await channel.subscribe();
         await channel.send({
           type: 'broadcast',
-          event: 'new-booking',
-          payload: { bookingId: booking.id },
+          event: 'new-booking'
         });
         await supabase.removeChannel(channel);
       }
