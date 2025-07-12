@@ -7,8 +7,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
-const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB
-
 interface AddVehicleDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -28,10 +26,10 @@ const AddVehicleDialog = ({ open, onOpenChange, agencyId, onVehicleAdded }: AddV
     daily_rate: '',
     weekly_rate: '',
     monthly_rate: '',
+    image_url: '',
     license_plate: '',
     vin: ''
   });
-  const [imageFile, setImageFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
@@ -42,16 +40,7 @@ const AddVehicleDialog = ({ open, onOpenChange, agencyId, onVehicleAdded }: AddV
     setLoading(true);
 
     try {
-      let imageUrl: string | null = null;
-
-      if (imageFile) {
-        const ext = imageFile.name.split('.').pop();
-        const filePath = `vehicles/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
-        const { error: uploadError } = await supabase.storage.from('vehicle-images').upload(filePath, imageFile);
-        if (uploadError) throw uploadError;
-        const { data } = supabase.storage.from('vehicle-images').getPublicUrl(filePath);
-        imageUrl = data.publicUrl;
-      }
+      const imageUrl = formData.image_url ? formData.image_url : null;
 
       const { error } = await supabase
         .from('vehicles')
@@ -92,11 +81,10 @@ const AddVehicleDialog = ({ open, onOpenChange, agencyId, onVehicleAdded }: AddV
         daily_rate: '',
         weekly_rate: '',
         monthly_rate: '',
+        image_url: '',
         license_plate: '',
         vin: ''
       });
-      setImageFile(null);
-
       onVehicleAdded();
     } catch (error: unknown) {
       toast({
@@ -267,25 +255,13 @@ const AddVehicleDialog = ({ open, onOpenChange, agencyId, onVehicleAdded }: AddV
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="image_file">Car Photo</Label>
+            <Label htmlFor="image_url">Car Photo URL</Label>
             <Input
-              id="image_file"
-              type="file"
-              accept="image/*"
-              onChange={(e) => {
-                const file = e.target.files?.[0];
-                if (!file) return;
-                if (file.size > MAX_FILE_SIZE) {
-                  toast({
-                    title: 'File too large',
-                    description: 'Please upload an image under 2MB.',
-                    variant: 'destructive'
-                  });
-                  e.target.value = '';
-                  return;
-                }
-                setImageFile(file);
-              }}
+              id="image_url"
+              type="url"
+              value={formData.image_url ?? ''}
+              onChange={(e) => updateFormData('image_url', e.target.value)}
+              placeholder="https://example.com/car.jpg"
             />
           </div>
 
