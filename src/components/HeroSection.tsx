@@ -1,8 +1,4 @@
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Card } from "@/components/ui/card";
-import { Search, MapPin, Calendar, Users } from "lucide-react";
+import { MapPin, Users } from "lucide-react";
 import heroImage from "@/assets/hero-car.jpg";
 
 const HeroSection = () => {
@@ -26,52 +22,6 @@ const HeroSection = () => {
             Currently serving Davao Oriental. More locations coming soon.
           </p>
           
-          <Card variant="elevated" className="max-w-4xl mx-auto p-6 bg-background/95 backdrop-blur">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-foreground">Location</label>
-                <div className="relative">
-                  <MapPin className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    placeholder="Davao Oriental"
-                    className="pl-9"
-                  />
-                </div>
-              </div>
-              
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-foreground">Pick-up Date</label>
-                <div className="relative">
-                  <Calendar className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                  <Input 
-                    type="date" 
-                    className="pl-9"
-                  />
-                </div>
-              </div>
-              
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-foreground">Vehicle Type</label>
-                <Select>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Any type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="economy">Economy</SelectItem>
-                    <SelectItem value="compact">Compact</SelectItem>
-                    <SelectItem value="midsize">Midsize</SelectItem>
-                    <SelectItem value="suv">SUV</SelectItem>
-                    <SelectItem value="luxury">Luxury</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              
-              <Button variant="hero" size="hero" className="w-full">
-                <Search className="h-4 w-4" />
-                Search Cars
-              </Button>
-            </div>
-          </Card>
           
           <div className="mt-8 flex flex-wrap justify-center gap-6 text-sm text-muted-foreground">
             <div className="flex items-center gap-2">

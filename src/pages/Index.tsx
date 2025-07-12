@@ -1,6 +1,5 @@
 import Header from "@/components/Header";
 import HeroSection from "@/components/HeroSection";
-import FeaturedVehicles from "@/components/FeaturedVehicles";
 import HowItWorks from "@/components/HowItWorks";
 import AgencySection from "@/components/AgencySection";
 import CallToAction from "@/components/CallToAction";
@@ -13,7 +12,6 @@ const Index = () => {
     <div className="min-h-screen">
       <Header />
       <HeroSection />
-      <FeaturedVehicles />
       <HowItWorks />
       <AgencySection />
       {!user && <CallToAction />}
