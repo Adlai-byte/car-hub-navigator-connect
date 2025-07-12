@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
 
 interface OwnerHeaderProps {
-  page: 'dashboard' | 'bookings';
+  page: 'dashboard' | 'bookings' | 'rentals';
   agencyName?: string | null;
 }
 
@@ -26,13 +26,19 @@ const OwnerHeader = ({ page, agencyName }: OwnerHeaderProps) => {
               {agencyName}
             </span>
           )}
-          {page === 'dashboard' ? (
+          {page !== 'dashboard' && (
+            <Button variant="ghost" size="sm" asChild>
+              <Link to="/dashboard">Dashboard</Link>
+            </Button>
+          )}
+          {page !== 'bookings' && (
             <Button variant="ghost" size="sm" asChild>
               <Link to="/manage-bookings">Bookings</Link>
             </Button>
-          ) : (
+          )}
+          {page !== 'rentals' && (
             <Button variant="ghost" size="sm" asChild>
-              <Link to="/dashboard">Dashboard</Link>
+              <Link to="/current-rentals">Rentals</Link>
             </Button>
           )}
           <Button variant="ghost" size="icon">

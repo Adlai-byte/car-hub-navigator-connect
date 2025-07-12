@@ -4,8 +4,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Car } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
+import { useToast } from '@/hooks/use-toast';
 import OwnerHeader from '@/components/OwnerHeader';
 
 interface Booking {
@@ -25,53 +25,16 @@ interface Booking {
   } | null;
 }
 
-const ManageBookings = () => {
+const CurrentRentals = () => {
   const { user } = useAuth();
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
-  const [vehicleIds, setVehicleIds] = useState<string[]>([]);
-  const [agencyId, setAgencyId] = useState<string | null>(null);
   const [agencyName, setAgencyName] = useState<string | null>(null);
   const { toast } = useToast();
 
-  const updateStatus = async (booking: Booking, status: string) => {
-    try {
-      if (status === 'declined') {
-        const { error } = await supabase
-          .from('bookings')
-          .delete()
-          .eq('id', booking.id);
-        if (error) throw error;
-        toast({ title: 'Booking Declined', description: 'Request removed.' });
-      } else {
-        const { error } = await supabase
-          .from('bookings')
-          .update({ status })
-          .eq('id', booking.id);
-        if (error) throw error;
-
-        if (status === 'accepted') {
-          await supabase
-            .from('vehicles')
-            .update({ is_available: false })
-            .eq('id', booking.vehicle_id);
-        }
-
-        toast({ title: 'Booking Updated', description: `Booking ${status}.` });
-      }
-    } catch (error) {
-      toast({
-        title: 'Error',
-        description: (error as Error).message,
-        variant: 'destructive'
-      });
-    } finally {
-      loadBookings();
-    }
-  };
-
-  const loadBookings = useCallback(async () => {
+  const loadRentals = useCallback(async () => {
     if (!user) return;
+    setLoading(true);
     const { data: agency } = await supabase
       .from('agencies')
       .select('id, company_name')
@@ -81,14 +44,12 @@ const ManageBookings = () => {
       setLoading(false);
       return;
     }
-    setAgencyId(agency.id);
     setAgencyName(agency.company_name);
     const { data: vehicles } = await supabase
       .from('vehicles')
       .select('id')
       .eq('agency_id', agency.id);
     const ids = vehicles?.map((v) => v.id) || [];
-    setVehicleIds(ids);
     if (ids.length === 0) {
       setBookings([]);
       setLoading(false);
@@ -98,35 +59,31 @@ const ManageBookings = () => {
       .from('bookings')
       .select('id, vehicle_id, customer_name, customer_email, phone_number, notes, start_date, end_date, status, vehicles(make, model, year)')
       .in('vehicle_id', ids)
-      .order('created_at', { ascending: false });
+      .eq('status', 'accepted');
     setBookings((data as Booking[]) || []);
     setLoading(false);
   }, [user]);
 
   useEffect(() => {
-    loadBookings();
-  }, [loadBookings]);
+    loadRentals();
+  }, [loadRentals]);
 
-  useEffect(() => {
-    if (!user || vehicleIds.length === 0 || !agencyId) return;
-    const channel = supabase
-      .channel(`agency-${agencyId}`)
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'bookings' }, (payload) => {
-        const booking = payload.new as Booking;
-        if (vehicleIds.includes(booking.vehicle_id)) {
-          toast({ title: 'New Booking', description: `${booking.customer_name} booked a vehicle.` });
-          loadBookings();
-        }
-      })
-      .on('broadcast', { event: 'new-booking' }, () => {
-        toast({ title: 'New Booking', description: 'A vehicle was booked.' });
-        loadBookings();
-      })
-      .subscribe();
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [user, vehicleIds, agencyId, loadBookings, toast]);
+  const markReturned = async (b: Booking) => {
+    const { error } = await supabase
+      .from('bookings')
+      .update({ status: 'completed' })
+      .eq('id', b.id);
+    if (!error) {
+      await supabase
+        .from('vehicles')
+        .update({ is_available: true })
+        .eq('id', b.vehicle_id);
+      toast({ title: 'Vehicle returned' });
+      loadRentals();
+    } else {
+      toast({ title: 'Error', description: (error as Error).message, variant: 'destructive' });
+    }
+  };
 
   if (!user) {
     return <Navigate to="/agency-auth" replace />;
@@ -134,17 +91,17 @@ const ManageBookings = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
-      <OwnerHeader page="bookings" agencyName={agencyName} />
+      <OwnerHeader page="rentals" agencyName={agencyName} />
       <div className="container py-8">
         <Card>
           <CardHeader>
-            <CardTitle>Bookings</CardTitle>
+            <CardTitle>Current Rentals</CardTitle>
           </CardHeader>
           <CardContent>
             {loading ? (
               <div className="text-center py-8 text-muted-foreground">Loading...</div>
             ) : bookings.length === 0 ? (
-              <div className="text-center py-8 text-muted-foreground">No bookings found.</div>
+              <div className="text-center py-8 text-muted-foreground">No rentals found.</div>
             ) : (
               <div className="space-y-4">
                 {bookings.map((b) => (
@@ -169,26 +126,9 @@ const ManageBookings = () => {
                         )}
                       </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm capitalize mr-2">{b.status}</span>
-                      {b.status === 'pending' && (
-                        <>
-                          <Button
-                            size="sm"
-                            onClick={() => updateStatus(b, 'accepted')}
-                          >
-                            Accept
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="destructive"
-                            onClick={() => updateStatus(b, 'declined')}
-                          >
-                            Decline
-                          </Button>
-                        </>
-                      )}
-                    </div>
+                    <Button size="sm" onClick={() => markReturned(b)}>
+                      Mark Returned
+                    </Button>
                   </div>
                 ))}
               </div>
@@ -200,4 +140,4 @@ const ManageBookings = () => {
   );
 };
 
-export default ManageBookings;
+export default CurrentRentals;
