@@ -139,7 +139,7 @@ const VehicleList = ({ vehicles, onUpdate }: VehicleListProps) => {
                     
                     <div className="text-right">
                       <div className="text-2xl font-bold text-primary">
-                        ${vehicle.daily_rate}/day
+                        ₱{vehicle.daily_rate}/day
                       </div>
                     </div>
                   </div>

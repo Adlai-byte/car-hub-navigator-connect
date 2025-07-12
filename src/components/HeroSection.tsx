@@ -20,11 +20,10 @@ const HeroSection = () => {
         <div className="max-w-4xl mx-auto">
           <h1 className="text-4xl md:text-6xl font-bold text-foreground mb-6">
             Find Your Perfect
-            <span className="bg-gradient-primary bg-clip-text text-transparent"> Rental Car</span>
+            <span className="bg-gradient-primary bg-clip-text text-transparent"> Rental Car</span> in Davao Oriental
           </h1>
           <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-            Connect with local rental agencies and discover the best vehicles at competitive rates. 
-            From economy to luxury, find exactly what you need.
+            Currently serving Davao Oriental. More locations coming soon.
           </p>
           
           <Card variant="elevated" className="max-w-4xl mx-auto p-6 bg-background/95 backdrop-blur">
@@ -33,8 +32,8 @@ const HeroSection = () => {
                 <label className="text-sm font-medium text-foreground">Location</label>
                 <div className="relative">
                   <MapPin className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                  <Input 
-                    placeholder="Enter city or location" 
+                  <Input
+                    placeholder="Davao Oriental"
                     className="pl-9"
                   />
                 </div>

@@ -4,9 +4,10 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Textarea } from '@/components/ui/textarea';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+
+const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB
 
 interface AddVehicleDialogProps {
   open: boolean;
@@ -27,20 +28,31 @@ const AddVehicleDialog = ({ open, onOpenChange, agencyId, onVehicleAdded }: AddV
     daily_rate: '',
     weekly_rate: '',
     monthly_rate: '',
-    image_url: '',
     license_plate: '',
     vin: ''
   });
+  const [imageFile, setImageFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!agencyId) return;
-    
+
     setLoading(true);
 
     try {
+      let imageUrl: string | null = null;
+
+      if (imageFile) {
+        const ext = imageFile.name.split('.').pop();
+        const filePath = `vehicles/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+        const { error: uploadError } = await supabase.storage.from('vehicle-images').upload(filePath, imageFile);
+        if (uploadError) throw uploadError;
+        const { data } = supabase.storage.from('vehicle-images').getPublicUrl(filePath);
+        imageUrl = data.publicUrl;
+      }
+
       const { error } = await supabase
         .from('vehicles')
         .insert([{
@@ -55,7 +67,7 @@ const AddVehicleDialog = ({ open, onOpenChange, agencyId, onVehicleAdded }: AddV
           daily_rate: parseFloat(formData.daily_rate),
           weekly_rate: formData.weekly_rate ? parseFloat(formData.weekly_rate) : null,
           monthly_rate: formData.monthly_rate ? parseFloat(formData.monthly_rate) : null,
-          image_url: formData.image_url || null,
+          image_url: imageUrl,
           license_plate: formData.license_plate || null,
           vin: formData.vin || null,
           is_available: true
@@ -70,10 +82,20 @@ const AddVehicleDialog = ({ open, onOpenChange, agencyId, onVehicleAdded }: AddV
 
       // Reset form
       setFormData({
-        make: '', model: '', year: '', vehicle_type: '', transmission: '',
-        fuel_type: '', seats: '', daily_rate: '', weekly_rate: '', monthly_rate: '',
-        image_url: '', license_plate: '', vin: ''
+        make: '',
+        model: '',
+        year: '',
+        vehicle_type: '',
+        transmission: '',
+        fuel_type: '',
+        seats: '',
+        daily_rate: '',
+        weekly_rate: '',
+        monthly_rate: '',
+        license_plate: '',
+        vin: ''
       });
+      setImageFile(null);
 
       onVehicleAdded();
     } catch (error: unknown) {
@@ -207,7 +229,7 @@ const AddVehicleDialog = ({ open, onOpenChange, agencyId, onVehicleAdded }: AddV
 
           <div className="grid grid-cols-3 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="daily_rate">Daily Rate ($) *</Label>
+              <Label htmlFor="daily_rate">Daily Rate (₱) *</Label>
               <Input
                 id="daily_rate"
                 type="number"
@@ -220,7 +242,7 @@ const AddVehicleDialog = ({ open, onOpenChange, agencyId, onVehicleAdded }: AddV
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="weekly_rate">Weekly Rate ($)</Label>
+              <Label htmlFor="weekly_rate">Weekly Rate (₱)</Label>
               <Input
                 id="weekly_rate"
                 type="number"
@@ -232,7 +254,7 @@ const AddVehicleDialog = ({ open, onOpenChange, agencyId, onVehicleAdded }: AddV
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="monthly_rate">Monthly Rate ($)</Label>
+              <Label htmlFor="monthly_rate">Monthly Rate (₱)</Label>
               <Input
                 id="monthly_rate"
                 type="number"
@@ -245,13 +267,25 @@ const AddVehicleDialog = ({ open, onOpenChange, agencyId, onVehicleAdded }: AddV
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="image_url">Image URL</Label>
+            <Label htmlFor="image_file">Car Photo</Label>
             <Input
-              id="image_url"
-              type="url"
-              value={formData.image_url}
-              onChange={(e) => updateFormData('image_url', e.target.value)}
-              placeholder="https://example.com/car-image.jpg"
+              id="image_file"
+              type="file"
+              accept="image/*"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (!file) return;
+                if (file.size > MAX_FILE_SIZE) {
+                  toast({
+                    title: 'File too large',
+                    description: 'Please upload an image under 2MB.',
+                    variant: 'destructive'
+                  });
+                  e.target.value = '';
+                  return;
+                }
+                setImageFile(file);
+              }}
             />
           </div>
 

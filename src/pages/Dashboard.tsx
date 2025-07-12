@@ -141,7 +141,8 @@ const Dashboard = () => {
             <CardHeader className="pb-2">
               <CardDescription>Average Daily Rate</CardDescription>
               <CardTitle className="text-3xl">
-                ${vehicles.length > 0
+                ₱{
+                  vehicles.length > 0
                   ? Math.round(
                       vehicles.reduce(
                         (sum: number, v) => sum + parseFloat(v.daily_rate),
