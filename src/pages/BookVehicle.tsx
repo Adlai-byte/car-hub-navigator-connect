@@ -23,6 +23,8 @@ const BookVehicle = () => {
   const [form, setForm] = useState({
     name: '',
     email: '',
+    phone: '',
+    notes: '',
     start: '',
     end: ''
   });
@@ -54,6 +56,8 @@ const BookVehicle = () => {
       vehicle_id: vehicleId,
       customer_name: form.name,
       customer_email: form.email,
+      phone_number: form.phone || null,
+      notes: form.notes || null,
       start_date: form.start,
       end_date: form.end
     });
@@ -61,7 +65,7 @@ const BookVehicle = () => {
       toast({ title: 'Error', description: (error as Error).message, variant: 'destructive' });
     } else {
       toast({ title: 'Booked', description: 'Your booking was created.' });
-      setForm({ name: '', email: '', start: '', end: '' });
+      setForm({ name: '', email: '', phone: '', notes: '', start: '', end: '' });
     }
     setLoading(false);
   };
@@ -99,6 +103,14 @@ const BookVehicle = () => {
                   <div className="space-y-2">
                     <Label htmlFor="email">Email</Label>
                     <Input id="email" type="email" value={form.email} onChange={(e) => update('email', e.target.value)} required />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="phone">Phone Number</Label>
+                    <Input id="phone" value={form.phone} onChange={(e) => update('phone', e.target.value)} required />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="notes">Additional Info</Label>
+                    <Input id="notes" value={form.notes} onChange={(e) => update('notes', e.target.value)} />
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">

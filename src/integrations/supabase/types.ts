@@ -142,6 +142,8 @@ export type Database = {
           vehicle_id: string
           customer_name: string
           customer_email: string
+          phone_number: string | null
+          notes: string | null
           start_date: string
           end_date: string
           status: string
@@ -153,6 +155,8 @@ export type Database = {
           vehicle_id: string
           customer_name: string
           customer_email: string
+          phone_number?: string | null
+          notes?: string | null
           start_date: string
           end_date: string
           status?: string
@@ -164,6 +168,8 @@ export type Database = {
           vehicle_id?: string
           customer_name?: string
           customer_email?: string
+          phone_number?: string | null
+          notes?: string | null
           start_date?: string
           end_date?: string
           status?: string
