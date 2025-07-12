@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Car, Plus, Settings, LogOut } from 'lucide-react';
+import { Car, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAuth } from '@/hooks/useAuth';
@@ -7,6 +7,7 @@ import { supabase } from '@/integrations/supabase/client';
 import VehicleList, { Vehicle } from '@/components/VehicleList';
 import AddVehicleDialog from '@/components/AddVehicleDialog';
 import { Navigate } from 'react-router-dom';
+import OwnerHeader from '@/components/OwnerHeader';
 
 interface Agency {
   id: string;
@@ -15,7 +16,7 @@ interface Agency {
 }
 
 const Dashboard = () => {
-  const { user, signOut } = useAuth();
+  const { user } = useAuth();
   const [agency, setAgency] = useState<Agency | null>(null);
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [showAddVehicle, setShowAddVehicle] = useState(false);
@@ -86,27 +87,7 @@ const Dashboard = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
       {/* Header */}
-      <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container flex h-16 items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Car className="h-6 w-6 text-primary" />
-            <span className="text-xl font-bold">RentalHub</span>
-            <span className="text-sm text-muted-foreground ml-2">Dashboard</span>
-          </div>
-          
-          <div className="flex items-center gap-3">
-            <span className="text-sm text-muted-foreground hidden sm:block">
-              {agency?.company_name}
-            </span>
-            <Button variant="ghost" size="icon">
-              <Settings className="h-4 w-4" />
-            </Button>
-            <Button variant="ghost" size="icon" onClick={signOut}>
-              <LogOut className="h-4 w-4" />
-            </Button>
-          </div>
-        </div>
-      </header>
+      <OwnerHeader page="dashboard" agencyName={agency?.company_name} />
 
       <div className="container py-8">
         {/* Welcome Section */}
