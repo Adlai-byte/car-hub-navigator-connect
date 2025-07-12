@@ -60,6 +60,33 @@ This project is built with:
 - shadcn-ui
 - Tailwind CSS
 
+## Supabase setup
+
+This project uses Supabase for authentication and data storage. Before running
+the application, apply the database migrations included in the
+`supabase/migrations` directory.
+
+1. Install the Supabase CLI if you haven't already:
+
+   ```sh
+   npm install -g supabase
+   ```
+
+2. Link the CLI to this project:
+
+   ```sh
+   supabase link --project-ref alibdhmgdmfnoohkbykl
+   ```
+
+3. Apply the migrations to create the required tables (including `bookings`):
+
+   ```sh
+   supabase db push
+   ```
+
+If `/rest/v1/bookings` returns a 404 error, it usually means the migrations
+haven't been applied yet. Running the command above should resolve it.
+
 ## How can I deploy this project?
 
 Simply open [Lovable](https://lovable.dev/projects/3936836e-3e02-46d1-af97-cfa7b827cc1a) and click on Share -> Publish.
