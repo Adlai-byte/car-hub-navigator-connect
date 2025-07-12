@@ -9,6 +9,7 @@ import AgencyAuth from "./pages/AgencyAuth";
 import Dashboard from "./pages/Dashboard";
 import BookVehicle from "./pages/BookVehicle";
 import ManageBookings from "./pages/ManageBookings";
+import CurrentRentals from "./pages/CurrentRentals";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -26,6 +27,7 @@ const App = () => (
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/book/:vehicleId" element={<BookVehicle />} />
             <Route path="/manage-bookings" element={<ManageBookings />} />
+            <Route path="/current-rentals" element={<CurrentRentals />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
