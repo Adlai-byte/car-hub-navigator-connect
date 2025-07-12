@@ -45,11 +45,11 @@ const EditVehicleDialog = ({ open, onOpenChange, vehicle, onVehicleUpdated }: Ed
         fuel_type: vehicle.fuel_type,
         seats: String(vehicle.seats),
         daily_rate: String(vehicle.daily_rate),
-        weekly_rate: (vehicle as any).weekly_rate ? String((vehicle as any).weekly_rate) : '',
-        monthly_rate: (vehicle as any).monthly_rate ? String((vehicle as any).monthly_rate) : '',
+        weekly_rate: vehicle.weekly_rate ? String(vehicle.weekly_rate) : '',
+        monthly_rate: vehicle.monthly_rate ? String(vehicle.monthly_rate) : '',
         image_url: vehicle.image_url || '',
-        license_plate: (vehicle as any).license_plate || '',
-        vin: (vehicle as any).vin || ''
+        license_plate: vehicle.license_plate || '',
+        vin: vehicle.vin || ''
       });
     }
   }, [vehicle]);

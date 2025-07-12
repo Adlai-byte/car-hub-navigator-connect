@@ -136,6 +136,50 @@ export type Database = {
           },
         ]
       }
+      bookings: {
+        Row: {
+          id: string
+          vehicle_id: string
+          customer_name: string
+          customer_email: string
+          start_date: string
+          end_date: string
+          status: string
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          vehicle_id: string
+          customer_name: string
+          customer_email: string
+          start_date: string
+          end_date: string
+          status?: string
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          vehicle_id?: string
+          customer_name?: string
+          customer_email?: string
+          start_date?: string
+          end_date?: string
+          status?: string
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bookings_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "vehicles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never

@@ -7,6 +7,8 @@ import { AuthProvider } from "@/hooks/useAuth";
 import Index from "./pages/Index";
 import AgencyAuth from "./pages/AgencyAuth";
 import Dashboard from "./pages/Dashboard";
+import BookVehicle from "./pages/BookVehicle";
+import ManageBookings from "./pages/ManageBookings";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -22,6 +24,8 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/agency-auth" element={<AgencyAuth />} />
             <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/book/:vehicleId" element={<BookVehicle />} />
+            <Route path="/manage-bookings" element={<ManageBookings />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
